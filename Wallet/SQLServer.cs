@@ -39,24 +39,24 @@ namespace Wallet {
 
         //更新高度
         public void UpdateBlockHeight(long blockNum) {
-            string cmd = "update blockHeight set blockHeight=" + blockNum + " where net='LsunTestnet'";
+            string cmd = "update blockHeight set blockHeight=" + blockNum + " where net='NeoTestnet'";
             CommandNonQuery(cmd);
         }
 
         //储存vout
         public void AddVout(string blockIndex, string txid, int n, string asset, string address, string value) {
-            string cmd = "insert into lsunVout(blockIndex, txid, n, asset, address, value)values('" + blockIndex + "','" + txid + "','" + n + "','" + asset + "','" + address + "','" + value + "')";
+            string cmd = "insert into vout(blockIndex, txid, n, asset, address, value)values('" + blockIndex + "','" + txid + "','" + n + "','" + asset + "','" + address + "','" + value + "')";
             CommandNonQuery(cmd);
         }
         //储存vout
         public void AddVin(string blockIndex, string txidRef, int nRef) {
-            string cmd = "insert into lsunVin(blockIndex, txidRef, nRef)values('" + blockIndex + "','" + txidRef + "','" + nRef + "')";
+            string cmd = "insert into vin(blockIndex, txidRef, nRef)values('" + blockIndex + "','" + txidRef + "','" + nRef + "')";
             CommandNonQuery(cmd);
         }
 
         //获取上次爬到的高度
         public long GetStartBlock() {
-            string cmd = "select blockHeight from blockHeight where net='LsunTestnet'";
+            string cmd = "select blockHeight from blockHeight where net='NeoTestnet'";
             SqlDataReader sqlDataReader = CommandReader(cmd);
             if(sqlDataReader.Read()) {
                 try {

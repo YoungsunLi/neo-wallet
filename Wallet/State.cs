@@ -4,6 +4,6 @@ using System.Text;
 
 namespace Wallet {
     class State {
-        public static bool SyncBlock => true;
+        public static bool SyncBlock = true;
     }
 }

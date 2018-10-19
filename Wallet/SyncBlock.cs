@@ -51,7 +51,7 @@ namespace Wallet {
         HttpRequest httpRequest = new HttpRequest();
         //获取块信息
         private JObject GetBlock(long blockNum) {
-            string url = "http://127.0.0.1:40332/?jsonrpc=2.0&id=1&method=getblock&params=[" + blockNum + ",1]";
+            string url = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=getblock&params=[" + blockNum + ",1]";
             JObject blockJson = httpRequest.Get(url);
             Console.WriteLine("正在处理的块= " + blockNum);
             return blockJson;
@@ -68,7 +68,7 @@ namespace Wallet {
 
         //获取最高块
         private long GetEndBlock() {
-            string url = "http://localhost:40332/?jsonrpc=2.0&id=1&method=getblockcount&params=[]";
+            string url = "http://localhost:20337/?jsonrpc=2.0&id=1&method=getblockcount&params=[]";
             JObject json = httpRequest.Get(url);
             long endBlock = json["result"].Value<long>();
             return endBlock;
