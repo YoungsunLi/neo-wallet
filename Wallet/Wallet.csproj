@@ -13,4 +13,16 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="llvm">
+      <HintPath>dll\llvm.dll</HintPath>
+    </Reference>
+    <Reference Include="thinSDK">
+      <HintPath>dll\thinSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="thinSDK_neo">
+      <HintPath>dll\thinSDK_neo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
