@@ -6,12 +6,12 @@ using System.Text;
 using ThinNeo;
 
 namespace Wallet {
-    class Tran1 {
+    class TranNNC {
         public void Run() {
-            string wif = "KySWX7BK1smMUVLrpp66EyzMgWeQZmkrB6FEdzBw7qhouvgaBgJd";//自己
+            string wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";//自己
             string targetAddress = "AN6HX6NxNsQaLdcbtqjTCP2z4XxTy1GNSr";//别人
-            string asset = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";//币种
-            decimal sendCount = new decimal(8);
+            string asset = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";//币种(GAS转换NNC)
+            decimal sendCount = new decimal(1);
 
             byte[] prikey = Helper.GetPrivateKeyFromWIF(wif);
             byte[] pubkey = Helper.GetPublicKeyFromPrivateKey(prikey);
@@ -27,11 +27,30 @@ namespace Wallet {
             sQLServer.Close();
 
             //拼交易
-            Transaction transaction = MakeTransaction(dic_UTXO, address, targetAddress, new Hash256(asset), sendCount);
-
+            Transaction transaction = MakeTransaction(dic_UTXO, address, targetAddress, new Hash256(asset), 0);
             transaction.version = 0;
-            transaction.attributes =new ThinNeo.Attribute[0];
-            transaction.type = TransactionType.ContractTransaction;
+            transaction.attributes = new ThinNeo.Attribute[0];
+
+            //与普通转账的区别
+            transaction.type = TransactionType.InvocationTransaction;//调用合约的转账
+            InvokeTransData invokeTransData = new InvokeTransData();
+            byte[] script = null;
+            using(ScriptBuilder sb = new ScriptBuilder()) {
+                var array = new MyJson.JsonNode_Array();
+                array.AddArrayValue("(addr)" + address);//from
+                array.AddArrayValue("(addr)" + targetAddress);//to
+                array.AddArrayValue("(int)" + "1" + "00");//value
+                sb.EmitParamJson(array);//参数倒序入
+                sb.EmitPushString("transfer");//参数倒序入
+                sb.EmitAppCall(new Hash160("0xbab964febd82c9629cc583596975f51811f25f47"));//合约
+                script = sb.ToArray();
+            }
+            invokeTransData.script = script;
+            invokeTransData.gas = 0;
+            transaction.extdata = invokeTransData;
+            ///
+
+
             byte[] msg = transaction.GetMessage();
             string msgStr = Helper.Bytes2HexString(msg);
             byte[] signdata = Helper.Sign(msg, prikey);//签名
@@ -39,13 +58,15 @@ namespace Wallet {
             string txid = transaction.GetHash().ToString();
             byte[] data = transaction.GetRawData();
             string rawdata = Helper.Bytes2HexString(data);
+            
+           
 
             //广播
             HttpRequest httpRequest = new HttpRequest();
             string url = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=sendrawtransaction&params=[\"" + rawdata + "\"]";
             JObject jObject = httpRequest.Get(url);
             string info = jObject.ToString();
-            Console.WriteLine(info);
+            Console.WriteLine("NNC"+info);
         }
 
         private Transaction MakeTransaction(Dictionary<string, List<UTXO>> dic_UTXO, string fromAddress, string targetAddress, Hash256 asset, decimal sendCount) {
