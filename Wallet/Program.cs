@@ -7,6 +7,7 @@ namespace Wallet {
             Timer timerSyncBlock = new Timer(SyncBlock, null, 0, 15000);
             TranNEO tranNEO = new TranNEO();
             TranNNC tranNNC = new TranNNC();
+            BalanceOfTest balanceOfTest = new BalanceOfTest();
             ShowMenu();
 
             while(true) {
@@ -15,9 +16,9 @@ namespace Wallet {
                     tranNEO.Run();
                 } else if(s == "2") {
                     tranNNC.Run();
-                }
-
-                if(s.ToLower() == "exit") {
+                } else if(s == "3") {
+                    balanceOfTest.Run();
+                } else if(s.ToLower() == "exit") {
                     return;
                 } else if(s.ToLower() == "help") {
                     ShowMenu();
@@ -37,6 +38,7 @@ namespace Wallet {
         private static void ShowMenu() {
             Console.WriteLine("输入1:转账NEO");
             Console.WriteLine("输入2:转账NNC");
+            Console.WriteLine("输入3:BalanceOfTest");
         }
 
     }
