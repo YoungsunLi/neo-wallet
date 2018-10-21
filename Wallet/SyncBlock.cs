@@ -53,7 +53,7 @@ namespace Wallet {
         private JObject GetBlock(long blockNum) {
             string url = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=getblock&params=[" + blockNum + ",1]";
             JObject blockJson = httpRequest.Get(url);
-            Console.WriteLine("正在处理的块= " + blockNum);
+            //Console.WriteLine("正在处理的块= " + blockNum);
             return blockJson;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
@@ -28,7 +29,23 @@ namespace Wallet {
             //拼交易
             Transaction transaction = MakeTransaction(dic_UTXO, address, targetAddress, new Hash256(asset), sendCount);
 
+            transaction.version = 0;
+            transaction.attributes =new ThinNeo.Attribute[0];
+            transaction.type = TransactionType.ContractTransaction;
+            byte[] msg = transaction.GetMessage();
+            string msgStr = Helper.Bytes2HexString(msg);
+            byte[] signdata = Helper.Sign(msg, prikey);//签名
+            transaction.AddWitness(signdata, pubkey, address);
+            string txid = transaction.GetHash().ToString();
+            byte[] data = transaction.GetRawData();
+            string rawdata = Helper.Bytes2HexString(data);
 
+            //广播
+            HttpRequest httpRequest = new HttpRequest();
+            string url = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=sendrawtransaction&params=[\"" + rawdata + "\"]";
+            JObject jObject = httpRequest.Get(url);
+            string info = jObject.ToString();
+            Console.WriteLine(info);
         }
 
         private Transaction MakeTransaction(Dictionary<string, List<UTXO>> dic_UTXO, string fromAddress, string targetAddress, Hash256 asset, decimal sendCount) {
@@ -37,7 +54,7 @@ namespace Wallet {
 
             Transaction transaction = new Transaction();
 
-            decimal count = 0;
+            decimal count = decimal.Zero;
             List<TransactionInput> transactionInputs = new List<TransactionInput>();
             for(int i = 0; i < uTXOs.Count; i++) {
                 TransactionInput transactionInput = new TransactionInput();
@@ -57,7 +74,7 @@ namespace Wallet {
             if(count >= sendCount) {
                 List<TransactionOutput> transactionOutputs = new List<TransactionOutput>();
                 //输出
-                if(sendCount > 0) {
+                if(sendCount > decimal.Zero) {
                     TransactionOutput transactionOutput = new TransactionOutput();
                     transactionOutput.assetId = asset;
                     transactionOutput.value = sendCount;
@@ -67,9 +84,10 @@ namespace Wallet {
 
                 //找零
                 decimal change = count - sendCount;
-                if(change > 0) {
+                if(change > decimal.Zero) {
                     TransactionOutput transactionOutput = new TransactionOutput();
                     transactionOutput.toAddress = Helper.GetPublicKeyHashFromAddress(fromAddress);
+                    transactionOutput.value = change;
                     transactionOutput.assetId = asset;
                     transactionOutputs.Add(transactionOutput);
                 }
@@ -102,7 +120,7 @@ namespace Wallet {
                     dic[asset] = uTXOs;
                 }
             }
-            if(!dic.ContainsKey(reader["asset"].ToString())) {
+            if(dic.Count == 0) {
                 throw new Exception("你都没有这种钱");//须添加币种显示
             }
             return dic;
