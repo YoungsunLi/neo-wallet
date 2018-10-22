@@ -8,6 +8,8 @@ namespace Wallet {
             TranNEO tranNEO = new TranNEO();
             TranNNC tranNNC = new TranNNC();
             BalanceOfTest balanceOfTest = new BalanceOfTest();
+            PushContract pushContract = new PushContract();
+
             ShowMenu();
 
             while(true) {
@@ -18,6 +20,8 @@ namespace Wallet {
                     tranNNC.Run();
                 } else if(s == "3") {
                     balanceOfTest.Run();
+                } else if(s == "4") {
+                    pushContract.Run();
                 } else if(s.ToLower() == "exit") {
                     return;
                 } else if(s.ToLower() == "help") {
@@ -39,6 +43,7 @@ namespace Wallet {
             Console.WriteLine("输入1:转账NEO");
             Console.WriteLine("输入2:转账NNC");
             Console.WriteLine("输入3:BalanceOfTest");
+            Console.WriteLine("输入4:测试合约发布");
         }
 
     }
