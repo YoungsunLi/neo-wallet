@@ -9,7 +9,7 @@ namespace Wallet {
     class TranNEO {
         public void Run() {
             string wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";//自己
-            string targetAddress = "AN6HX6NxNsQaLdcbtqjTCP2z4XxTy1GNSr";//别人
+            string targetAddress = "AQye22dcXV1jCrzzC4iGbyM68LADwPSs11";//别人
             string asset = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";//币种(NEO)
             //string asset = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";//币种(GAS)
             decimal sendCount = new decimal(1);

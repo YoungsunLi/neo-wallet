@@ -7,14 +7,14 @@ using ThinNeo;
 namespace Wallet {
     class BalanceOfTest {
         public void Run() {
-            string address = "AN6HX6NxNsQaLdcbtqjTCP2z4XxTy1GNSr";
+            string address = "AQye22dcXV1jCrzzC4iGbyM68LADwPSs11";
             byte[] data = null;
             using(ScriptBuilder sb = new ScriptBuilder()) {
                 MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();
                 array.AddArrayValue("(addr)" + address);//who
                 sb.EmitParamJson(array);
                 sb.EmitPushString("balanceOf");
-                sb.EmitAppCall(new Hash160("0xbab964febd82c9629cc583596975f51811f25f47"));//合约hash
+                sb.EmitAppCall(new Hash160("0x8e64b705793e59b9e8b9ce9412092a3881eaa5fd"));//合约hash(我的Youngsun币:0x8e64b705793e59b9e8b9ce9412092a3881eaa5fd)
                 data = sb.ToArray();
             }
             string script = Helper.Bytes2HexString(data);
