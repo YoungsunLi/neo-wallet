@@ -11,7 +11,6 @@ namespace Wallet {
             return JObject.Parse(json);
         }
         public JObject Post(string boby, string url = "http://127.0.0.1:20337") {
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage httpResponseMessage = httpClient.PostAsync(url, new StringContent(boby)).Result;
             string json = httpResponseMessage.Content.ReadAsStringAsync().Result;
             return JObject.Parse(json);
