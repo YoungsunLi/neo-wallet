@@ -43,8 +43,7 @@ namespace Wallet {
 
             //广播
             HttpRequest httpRequest = new HttpRequest();
-            string url = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=sendrawtransaction&params=[\"" + rawdata + "\"]";
-            JObject jObject = httpRequest.Get(url);
+            JObject jObject = httpRequest.Get("sendrawtransaction", rawdata);
             string info = jObject.ToString();
             Console.WriteLine(info);
         }

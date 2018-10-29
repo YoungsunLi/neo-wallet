@@ -11,7 +11,6 @@ namespace Wallet {
             string wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";//自己
             string asset = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";//币种(GAS)
 
-
             byte[] prikey = Helper.GetPrivateKeyFromWIF(wif);
             byte[] pubkey = Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = Helper.GetAddressFromPublicKey(pubkey);
@@ -25,16 +24,15 @@ namespace Wallet {
             Dictionary<string, List<UTXO>> dic_UTXO = GetUTXO(reader);
             sQLServer.Close();
 
-
             //从文件中读取合约脚本
-            byte[] script = System.IO.File.ReadAllBytes("a.avm"); //这里填你的合约所在地址
-            byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("07");  //这里填合约入参  例：0610代表（string，[]）
-            byte[] return_type = ThinNeo.Helper.HexString2Bytes("01");  //这里填合约的出参
+            byte[] script = System.IO.File.ReadAllBytes("C:\\Neo\\SmartContracts\\0x35eac9327df0a34f2302a1c7832d888b6a366c0e.avm"); //这里填你的合约所在地址
+            byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("0710");  //这里填合约入参  例：0610代表（string，[]）
+            byte[] return_type = ThinNeo.Helper.HexString2Bytes("05");  //这里填合约的出参
             int need_storage = 1;
             int need_nep4 = 0;
             int need_canCharge = 4;
-            string name = "sgas";
-            string version = "1.0";
+            string name = "NEO Name Credit(CLI)";
+            string version = "2.0";
             string auther = "Youngsun";
             string email = "lsun@live.cn";
             string description = "0";
@@ -54,10 +52,7 @@ namespace Wallet {
                 string scriptPublish = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
                 //用invokescript试运行并得到消耗
                 HttpRequest httpRequest = new HttpRequest();
-                string url_1 = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=invokescript&params=[\"" + scriptPublish + "\"]";
-                JObject result = httpRequest.Get(url_1);
-                //string result = jObject.ToString();
-                Console.WriteLine(result);
+                JObject result = httpRequest.Get("invokescript", scriptPublish);
                 string consume = result["result"]["gas_consumed"].ToString();
                 decimal gas_consumed = decimal.Parse(consume);
                 InvokeTransData extdata = new InvokeTransData();
@@ -67,7 +62,7 @@ namespace Wallet {
                 extdata.gas = Math.Ceiling(gas_consumed - 10);
 
                 //拼装交易体
-                ThinNeo.Transaction tran = MakeTransaction(dic_UTXO, null, new Hash256(asset), extdata.gas);
+                Transaction tran = MakeTransaction(dic_UTXO, null, new Hash256(asset), extdata.gas);
                 tran.version = 1;
                 tran.extdata = extdata;
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
@@ -77,12 +72,10 @@ namespace Wallet {
                 string txid = tran.GetHash().ToString();
                 byte[] data = tran.GetRawData();
                 string rawdata = Helper.Bytes2HexString(data);
-
-                //Console.WriteLine("scripthash:"+scripthash);
-
+                
                 //广播
-                string url_2 = "http://127.0.0.1:20337/?jsonrpc=2.0&id=1&method=sendrawtransaction&params=[\"" + rawdata + "\"]";
-                JObject jObject = httpRequest.Get(url_2);
+                JObject jObject = httpRequest.Post("sendrawtransaction", rawdata);
+
                 string info = jObject.ToString();
                 Console.WriteLine(info);
             }
