@@ -26,8 +26,8 @@ namespace Wallet {
 
             //从文件中读取合约脚本
             byte[] script = System.IO.File.ReadAllBytes("C:\\Neo\\SmartContracts\\0x35eac9327df0a34f2302a1c7832d888b6a366c0e.avm"); //这里填你的合约所在地址
-            byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("0710");  //这里填合约入参  例：0610代表（string，[]）
-            byte[] return_type = ThinNeo.Helper.HexString2Bytes("05");  //这里填合约的出参
+            byte[] parameter__list = Helper.HexString2Bytes("0710");  //这里填合约入参  例：0610代表（string，[]）
+            byte[] return_type = Helper.HexString2Bytes("05");  //这里填合约的出参
             int need_storage = 1;
             int need_nep4 = 0;
             int need_canCharge = 4;
@@ -36,7 +36,7 @@ namespace Wallet {
             string auther = "Youngsun";
             string email = "lsun@live.cn";
             string description = "0";
-            using(ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder()) {
+            using(ScriptBuilder sb = new ScriptBuilder()) {
                 //倒叙插入数据
                 sb.EmitPushString(description);
                 sb.EmitPushString(email);
@@ -49,7 +49,7 @@ namespace Wallet {
                 sb.EmitPushBytes(script);
                 sb.EmitSysCall("Neo.Contract.Create");
 
-                string scriptPublish = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
+                string scriptPublish = Helper.Bytes2HexString(sb.ToArray());
                 //用invokescript试运行并得到消耗
                 HttpRequest httpRequest = new HttpRequest();
                 JObject result = httpRequest.Get("invokescript", scriptPublish);
@@ -57,17 +57,16 @@ namespace Wallet {
                 decimal gas_consumed = decimal.Parse(consume);
                 InvokeTransData extdata = new InvokeTransData();
                 extdata.script = sb.ToArray();
-
-                //Console.WriteLine(ThinNeo.Helper.Bytes2HexString(extdata.script));
+                
                 extdata.gas = Math.Ceiling(gas_consumed - 10);
 
                 //拼装交易体
                 Transaction tran = MakeTransaction(dic_UTXO, null, new Hash256(asset), extdata.gas);
                 tran.version = 1;
                 tran.extdata = extdata;
-                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                tran.type = TransactionType.InvocationTransaction;
                 byte[] msg = tran.GetMessage();
-                byte[] signdata = ThinNeo.Helper.Sign(msg, prikey);
+                byte[] signdata = Helper.Sign(msg, prikey);
                 tran.AddWitness(signdata, pubkey, address);
                 string txid = tran.GetHash().ToString();
                 byte[] data = tran.GetRawData();
@@ -86,8 +85,8 @@ namespace Wallet {
                 throw new Exception("no enough money.");
 
             List<UTXO> utxos = dir_utxos[assetid.ToString()];
-            var tran = new ThinNeo.Transaction();
-            tran.type = ThinNeo.TransactionType.ContractTransaction;
+            var tran = new Transaction();
+            tran.type = TransactionType.ContractTransaction;
             tran.version = 0;//0 or 1
             tran.extdata = null;
 
@@ -102,9 +101,9 @@ namespace Wallet {
                     return 0;
             });
             decimal count = decimal.Zero;
-            List<ThinNeo.TransactionInput> list_inputs = new List<ThinNeo.TransactionInput>();
+            List<TransactionInput> list_inputs = new List<TransactionInput>();
             for(var i = 0; i < utxos.Count; i++) {
-                ThinNeo.TransactionInput input = new ThinNeo.TransactionInput();
+                TransactionInput input = new TransactionInput();
                 input.hash = utxos[i].txid;
                 input.index = (ushort)utxos[i].n;
                 list_inputs.Add(input);
@@ -117,21 +116,21 @@ namespace Wallet {
             tran.inputs = list_inputs.ToArray();
             if(count >= sendcount)//输入大于等于输出
             {
-                List<ThinNeo.TransactionOutput> list_outputs = new List<ThinNeo.TransactionOutput>();
+                List<TransactionOutput> list_outputs = new List<TransactionOutput>();
                 //输出
                 if(sendcount > decimal.Zero && targetaddr != null) {
-                    ThinNeo.TransactionOutput output = new ThinNeo.TransactionOutput();
+                    TransactionOutput output = new TransactionOutput();
                     output.assetId = assetid;
                     output.value = sendcount;
-                    output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(targetaddr);
+                    output.toAddress = Helper.GetPublicKeyHashFromAddress(targetaddr);
                     list_outputs.Add(output);
                 }
 
                 //找零
                 var change = count - sendcount;
                 if(change > decimal.Zero) {
-                    ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
-                    outputchange.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(scraddr);
+                    TransactionOutput outputchange = new TransactionOutput();
+                    outputchange.toAddress = Helper.GetPublicKeyHashFromAddress(scraddr);
                     outputchange.value = change;
                     outputchange.assetId = assetid;
                     list_outputs.Add(outputchange);
