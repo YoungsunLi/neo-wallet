@@ -39,7 +39,7 @@ namespace Wallet {
 
         //更新高度
         public void UpdateBlockHeight(long blockNum) {
-            string cmd = "update blockHeight set blockHeight=" + blockNum + " where net='NeoTestnet'";
+            string cmd = "update blockHeight set blockHeight=" + blockNum + " where net='testnet'";
             CommandNonQuery(cmd);
         }
 
@@ -56,7 +56,7 @@ namespace Wallet {
 
         //获取上次爬到的高度
         public long GetStartBlock() {
-            string cmd = "select blockHeight from blockHeight where net='NeoTestnet'";
+            string cmd = "select blockHeight from blockHeight where net='testnet'";
             SqlDataReader sqlDataReader = CommandReader(cmd);
             if(sqlDataReader.Read()) {
                 try {
@@ -84,7 +84,7 @@ namespace Wallet {
 
         //连接数据库
         public void Open() {
-            sqlConnection.ConnectionString = "server=127.0.0.1; database=NEO; integrated security=SSPI";
+            sqlConnection.ConnectionString = "server=127.0.0.1; database=NEOLSUN; integrated security=SSPI";
             sqlConnection.Open();
             if(sqlConnection.State == ConnectionState.Closed) { Console.WriteLine("sqlConnection error"); }
         }
